@@ -30,6 +30,19 @@ def BWT_approx_match(s,perm,p,suffixArray,d):
      i+=1
    return [suffixArray[x]-len(p) for x in indexs]
 
+
+def split_into(n, d):
+    l = n / d
+    a = n % d
+    s = 0
+    for _ in range(d):
+        e = s + l
+        if a > 0:
+            a -= 1
+            e += 1
+        yield s, e
+        s = e
+
 dualText=text+text
 rotation=[]
 for i in range(len(text)):
@@ -44,20 +57,21 @@ for i in sorted(enumerate(rotation), key=lambda x:x[1]):
 
 perm = sorted(range(len(bwt)), key=lambda x: bwt[x])
 
+
+        
+
 index=[]
 i=0
 for p in patterns:
   i+=1
   if i%100==0:
     print >>sys.stderr,"%d/%d\r"%(i,len(patterns)),
-  k=int(len(p)/(d+1))
-  j=0
   kmerMatch=False
-  while (kmerMatch==False) and (j<=len(p)-k):
-    kmer=p[j:(j+k)]
+  for (s,e) in split_into(len(p),d+1): 
+    kmer=p[s:e]
     if text.find(kmer)!=-1:
       kmerMatch=True
-    j+=1
+      break
   if kmerMatch:  
     index+=BWT_approx_match(bwt,perm,p,suffixArray,d)
 
